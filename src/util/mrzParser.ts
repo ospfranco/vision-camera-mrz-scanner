@@ -1,5 +1,5 @@
 // logging import and setup
-import {ListItemData} from '../constants/listItemData';
+import { ListItemData } from '../constants/listItemData';
 
 const countryIsoJson = require('../constants/CountryIsoCodes.json');
 
@@ -138,7 +138,7 @@ export const parseMRZ = (initialLines: string[]) => {
  */
 const parse2LineMRZ = (firstRow: string, secondRow: string) => {
   let docType = extractDocType(firstRow);
-  let namesFromLine: {givenNames: string[]; lastNames: string[]} =
+  let namesFromLine: { givenNames: string[]; lastNames: string[] } =
     extractNamesFromLine(5, firstRow);
   let givenNames: string[] = namesFromLine.givenNames;
   let lastNames: string[] = namesFromLine.lastNames;
@@ -204,10 +204,10 @@ const parse2LineMRZ = (firstRow: string, secondRow: string) => {
 const parse3LineMRZ = (
   firstRow: string,
   secondRow: string,
-  thirdRow: string,
+  thirdRow: string
 ) => {
   let docType = extractDocType(firstRow);
-  let namesFromLine: {givenNames: string[]; lastNames: string[]} =
+  let namesFromLine: { givenNames: string[]; lastNames: string[] } =
     extractNamesFromLine(0, thirdRow);
   let givenNames: string[] = namesFromLine.givenNames;
   let lastNames: string[] = namesFromLine.lastNames;
@@ -269,8 +269,8 @@ const extractDocType = (line: string) => {
  * @returns The value of the first item in the array that has a codes array that contains the docCode.
  */
 export const getDocTypeFromCode = (docCode?: string) => {
-  return ListItemData.DOCUMENT_TYPE.find(doc =>
-    doc.codes.find(code => code === docCode),
+  return ListItemData.DOCUMENT_TYPE.find((doc) =>
+    doc.codes.find((code) => code === docCode)
   )?.value;
 };
 
@@ -286,7 +286,7 @@ export const getDocTypeFromCode = (docCode?: string) => {
 const extractIdNumber = (
   line: string,
   startingIndex: number,
-  endingIndex: number,
+  endingIndex: number
 ) => {
   let idNumber = line.substring(startingIndex, endingIndex);
   // replace all 'O' with '0'
@@ -329,7 +329,7 @@ type CountryIsoCode = {
 const extractCountry = (
   line: string,
   startingIndex: number,
-  endingIndex: number,
+  endingIndex: number
 ) => {
   let country = line.substring(startingIndex, endingIndex);
 
@@ -343,7 +343,7 @@ const extractCountry = (
 
   // if country is in countryIsoJson, return it, if not return undefined
   return countryIsoJson.find(
-    (item: CountryIsoCode) => item.isoCountryCode === country,
+    (item: CountryIsoCode) => item.isoCountryCode === country
   )?.isoCountryCode;
 };
 
@@ -355,7 +355,7 @@ const extractCountry = (
  */
 const extractDateOfExpirationFromLine = (
   startingIndex: number,
-  line: string,
+  line: string
 ) => {
   // replace all 'O' with '0'
   while (line.substring(startingIndex, startingIndex + 6).indexOf('O') !== -1) {
@@ -363,15 +363,15 @@ const extractDateOfExpirationFromLine = (
   }
   let twoDigitYearOfExpiration = line.substring(
     startingIndex,
-    startingIndex + 2,
+    startingIndex + 2
   );
   let twoDigitMonthOfExpiration = line.substring(
     startingIndex + 2,
-    startingIndex + 4,
+    startingIndex + 4
   );
   let twoDigitDayOfExpiration = line.substring(
     startingIndex + 4,
-    startingIndex + 6,
+    startingIndex + 6
   );
   let fullYearOfExpDate = 2000 + parseInt(twoDigitYearOfExpiration, 10);
   let currentYear = new Date().getFullYear();
@@ -387,7 +387,7 @@ const extractDateOfExpirationFromLine = (
   let expDateCheckSum = checkSum(
     twoDigitYearOfExpiration +
       twoDigitMonthOfExpiration +
-      twoDigitDayOfExpiration,
+      twoDigitDayOfExpiration
   );
   if (expDateCheckSum === parseInt(line.charAt(startingIndex + 6), 10)) {
     return docExpirationDate;
@@ -410,7 +410,7 @@ const extractDateOfBirthFromLine = (startingIndex: number, line: string) => {
   let twoDigitYearOfBirth = line.substring(startingIndex, startingIndex + 2);
   let twoDigitMonthOfBirth = line.substring(
     startingIndex + 2,
-    startingIndex + 4,
+    startingIndex + 4
   );
   let twoDigitDayOfBirth = line.substring(startingIndex + 4, startingIndex + 6);
   let fullYearOfBirth = 2000 + parseInt(twoDigitYearOfBirth, 10);
@@ -420,7 +420,7 @@ const extractDateOfBirthFromLine = (startingIndex: number, line: string) => {
   }
   // Confirm checkSum for date of birth
   let dobCheckSum = checkSum(
-    twoDigitYearOfBirth + twoDigitMonthOfBirth + twoDigitDayOfBirth,
+    twoDigitYearOfBirth + twoDigitMonthOfBirth + twoDigitDayOfBirth
   );
   let dob = `${fullYearOfBirth}-${twoDigitMonthOfBirth}-${twoDigitDayOfBirth}`;
   // ensure date of birth is a valid date. if not, return undefined
@@ -504,8 +504,8 @@ const extractNamesFromLine = (startingIndex: number, line: string) => {
   }
 
   // remove empty strings from givenNames and lastNames
-  givenNames = givenNames.filter(fName => fName.length > 0);
-  lastNames = lastNames.filter(lName => lName.length > 0);
+  givenNames = givenNames.filter((fName) => fName.length > 0);
+  lastNames = lastNames.filter((lName) => lName.length > 0);
 
   // ensure 6's, 0's, and 2's are swapped out with G's, O's, and Z'z respectively
   for (let i = 0; i < givenNames.length; i++) {

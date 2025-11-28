@@ -1,12 +1,17 @@
 {
-  "name": "vision-camera-mrz-scanner",
-  "version": "0.3.1",
+  "name": "VisionCameraMrzScanner",
+  "version": "1.0.0",
   "description": "VisionCamera Frame Processor Plugin to detect and read MRZ data from passports using MLKit Text Recognition.",
-  "main": "lib/commonjs/index",
-  "module": "lib/module/index",
-  "types": "lib/typescript/index.d.ts",
-  "react-native": "src/index",
-  "source": "src/index",
+  "main": "./lib/module/index.js",
+  "types": "./lib/typescript/src/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.tsx",
+      "types": "./lib/typescript/src/index.d.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "src",
     "lib",
@@ -28,16 +33,9 @@
     "!docs/**"
   ],
   "scripts": {
-    "test": "jest",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "prepare": "bob build",
-    "prepack": "bob build",
-    "release": "dotenv release-it --",
-    "example": "yarn --cwd example",
-    "bootstrap": "yarn example && yarn install && yarn example pods",
-    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build"
+    "example": "yarn workspace VisionCameraMrzScannerExample",
+    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build",
+    "prepare": "bob build"
   },
   "keywords": [
     "react-native",
@@ -64,100 +62,47 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^19.8.1",
-    "@react-native-community/eslint-config": "^3.2.0",
-    "@release-it/conventional-changelog": "^10.0.1",
-    "@types/jest": "^30.0.0",
-    "@types/react": "19.0.0",
-    "commitlint": "^19.8.1",
+    "@eslint/compat": "^1.3.2",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.35.0",
+    "@react-native-community/cli": "20.0.1",
+    "@react-native/babel-preset": "0.81.1",
+    "@react-native/eslint-config": "^0.81.1",
+    "@types/react": "^19.1.0",
     "del-cli": "^6.0.0",
-    "dotenv-cli": "^10.0.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
-    "jest": "^30.0.5",
-    "pod-install": "^1.0.1",
-    "prettier": "^3.6.2",
-    "react": "19.0.0",
-    "react-native": "0.79.5",
-    "react-native-builder-bob": "^0.20.0",
-    "react-native-reanimated": "~3.17.4",
+    "prettier": "^2.8.8",
+    "react": "19.1.0",
+    "react-native": "0.81.1",
+    "react-native-builder-bob": "^0.40.15",
+    "react-native-reanimated": "~4.1.5",
     "react-native-vision-camera": "^4.7.1",
+    "react-native-worklets": "^0.6.1",
     "react-native-worklets-core": "^1.6.2",
-    "release-it": "^19.0.4",
     "typescript": "^5.9.2"
-  },
-  "resolutions": {
-    "@types/react": "18.0.26"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
-    "react-native-reanimated": ">= 2",
-    "react-native-vision-camera": ">= 2"
+    "react-native-reanimated": ">= 4",
+    "react-native-vision-camera": ">= 4"
   },
-  "engines": {
-    "node": ">= 16.0.0"
-  },
-  "jest": {
-    "preset": "react-native",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
-    ]
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release ${version}",
-      "tagName": "v${version}"
-    },
-    "npm": {
-      "publish": true
-    },
-    "github": {
-      "release": true
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": {
-          "name": "conventionalcommits",
-          "types": [
-            {
-              "type": "feat",
-              "section": "✨ Features"
-            },
-            {
-              "type": "fix",
-              "section": "🐛 Bug Fixes"
-            },
-            {
-              "type": "perf",
-              "section": "💨 Performance Improvements"
-            },
-            {
-              "type": "chore(deps)",
-              "section": "🛠️ Dependency Upgrades"
-            },
-            {
-              "type": "docs",
-              "section": "📚 Documentation"
-            }
-          ]
-        }
-      }
-    }
-  },
+  "workspaces": [
+    "example"
+  ],
+  "packageManager": "yarn@4.11.0",
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
     "targets": [
-      "commonjs",
-      "module",
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ],
       [
         "typescript",
         {
@@ -166,7 +111,14 @@
       ]
     ]
   },
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
+  },
   "dependencies": {
-    "mrz": "^4.2.1"
+    "mrz": "^5.0.0"
   }
 }

@@ -1,4 +1,4 @@
-package com.visioncameramrzscanner
+package com.opengineering.mrzscanner
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
@@ -9,7 +9,7 @@ import com.mrousavy.camera.frameprocessors.FrameProcessorPluginRegistry
 class VisionCameraMrzScannerPackage : ReactPackage {
   companion object {
     init {
-      FrameProcessorPluginRegistry.addFrameProcessorPlugin("scanMRZ") { proxy, options ->
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("scanMRZPlugin") { proxy, options ->
         VisionCameraMrzScannerPlugin(proxy, options)
       }
     }

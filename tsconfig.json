@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "vision-camera-mrz-scanner": ["./src/index"]
+      "VisionCameraMrzScanner": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

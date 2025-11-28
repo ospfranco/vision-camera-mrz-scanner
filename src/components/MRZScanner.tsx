@@ -1,9 +1,9 @@
-import React, {FC, PropsWithChildren, useEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {MRZCamera, MRZScannerProps} from 'vision-camera-mrz-scanner';
+import React, { FC, PropsWithChildren, useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { MRZCamera, MRZScannerProps } from 'VisionCameraMrzScanner';
 
-import type {MRZProperties} from '../types/mrzProperties';
-import {parseMRZ} from '../util/mrzParser';
+import type { MRZProperties } from '../types/mrzProperties';
+import { parseMRZ } from '../util/mrzParser';
 
 const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
   style,
@@ -32,7 +32,7 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
   const [scanSuccess, setScanSuccess] = useState(false);
   const [docMRZQAList, setDocMRZQAList] = useState<(string | undefined)[]>([]);
   const [docTypeQAList, setDocTypeQAList] = useState<(string | undefined)[]>(
-    [],
+    []
   );
   const [issuingCountryQAList, setIssuingCountryQAList] = useState<
     (string | undefined)[]
@@ -44,7 +44,7 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
     (string | undefined)[]
   >([]);
   const [idNumberQAList, setIdNumberQAList] = useState<(string | undefined)[]>(
-    [],
+    []
   );
   const [nationalityQAList, setNationalityQAList] = useState<
     (string | undefined)[]
@@ -89,7 +89,7 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
    */
   const currentMRZMatchesPreviousMRZs = (
     numberOfPreviousMRZsToCompareTo: number,
-    mrzResults: MRZProperties,
+    mrzResults: MRZProperties
   ) => {
     if (
       docMRZQAList.length >= 1 &&
@@ -117,7 +117,7 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
     }
     if (nationalityQAList.length < numberOfPreviousMRZsToCompareTo) {
       setNationalityQAList(
-        mrzQACheck(nationalityQAList, mrzResults.nationality),
+        mrzQACheck(nationalityQAList, mrzResults.nationality)
       );
     }
     if (dobQAList.length < numberOfPreviousMRZsToCompareTo) {
@@ -128,7 +128,7 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
     }
     if (issuingCountryQAList.length < numberOfPreviousMRZsToCompareTo) {
       setIssuingCountryQAList(
-        mrzQACheck(issuingCountryQAList, mrzResults.issuingCountry),
+        mrzQACheck(issuingCountryQAList, mrzResults.issuingCountry)
       );
     }
     if (docTypeQAList.length < numberOfPreviousMRZsToCompareTo) {
@@ -136,15 +136,15 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
     }
     if (docExpirationDateQAList.length < numberOfPreviousMRZsToCompareTo) {
       setDocExpirationDateQAList(
-        mrzQACheck(docExpirationDateQAList, mrzResults.docExpirationDate),
+        mrzQACheck(docExpirationDateQAList, mrzResults.docExpirationDate)
       );
     }
     if (additionalInformationQAList.length < numberOfPreviousMRZsToCompareTo) {
       setAdditionalInformationQAList(
         mrzQACheck(
           additionalInformationQAList,
-          mrzResults.additionalInformation,
-        ),
+          mrzResults.additionalInformation
+        )
       );
     }
     if (docMRZQAList.length < 1) {
@@ -182,7 +182,7 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
       textAlignVertical: 'center',
       height: '100%',
     },
-    flexRow: {flexDirection: 'row'},
+    flexRow: { flexDirection: 'row' },
     givenNamesQAList: {
       color: statusCheck(givenNamesQAList.length),
     },
@@ -223,17 +223,13 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
   return (
     <View testID="scanDocumentView" style={StyleSheet.absoluteFill}>
       <MRZCamera
-        onData={lines => {
-          if (onData) {
-            onData(lines);
-          } else {
-            const mrzResults = parseMRZ(lines);
-            if (mrzResults) {
-              if (currentMRZMatchesPreviousMRZs(numQAChecks, mrzResults)) {
-                setScanSuccess(true);
-                setIsActive(false);
-                mrzFinalResults(mrzResults);
-              }
+        onData={(lines) => {
+          const mrzResults = parseMRZ(lines);
+          if (mrzResults) {
+            if (currentMRZMatchesPreviousMRZs(numQAChecks, mrzResults)) {
+              setScanSuccess(true);
+              setIsActive(false);
+              mrzFinalResults(mrzResults);
             }
           }
         }}
@@ -245,7 +241,7 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
         skipButton={skipButton}
         onSkipPressed={onSkipPressed}
         cameraProps={cameraProps}
-        enableBoundingBox={enableBoundingBox}
+        // enableBoundingBox={enableBoundingBox}
         isActiveCamera={isActiveCamera ?? isActive} // if isActiveCamera is not defined, use the internal state
       />
       {enableMRZFeedBack ? (
@@ -256,7 +252,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.givenNamesQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`Given name ${givenNamesQAList.length} / ${numQAChecks}`}
             </Text>
             <Text
@@ -264,7 +261,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.lastNamesQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`Last name ${lastNamesQAList.length} / ${numQAChecks}`}
             </Text>
             <Text
@@ -272,7 +270,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.dobQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`DOB ${dobQAList.length} / ${numQAChecks}`}
             </Text>
           </View>
@@ -282,7 +281,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.nationalityQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`Nationality ${nationalityQAList.length} / ${numQAChecks}`}
             </Text>
             <Text
@@ -290,7 +290,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.idNumberQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`ID Number ${idNumberQAList.length} / ${numQAChecks}`}
             </Text>
             <Text
@@ -298,7 +299,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.issuingCountryQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`Issuing Country ${issuingCountryQAList.length} / ${numQAChecks}`}
             </Text>
           </View>
@@ -308,7 +310,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.docExpirationDateQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`Expiration Date ${docExpirationDateQAList.length} / ${numQAChecks}`}
             </Text>
             <Text
@@ -316,7 +319,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.additionalInformationQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`Additional Info ${additionalInformationQAList.length} / ${numQAChecks}`}
             </Text>
             <Text
@@ -324,7 +328,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.docMRZQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`DocMRZ ${docMRZQAList.length} / ${1}`}
             </Text>
           </View>
@@ -334,7 +339,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.genderQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`Gender ${genderQAList.length} / ${numQAChecks}`}
             </Text>
             <Text
@@ -342,7 +348,8 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
                 styles.feedbackText,
                 styles.docTypeQAList,
                 mrzFeedbackTextStyle,
-              ]}>
+              ]}
+            >
               {`DocType ${docTypeQAList.length} / ${numQAChecks}`}
             </Text>
           </View>

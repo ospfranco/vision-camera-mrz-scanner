@@ -1,6 +1,6 @@
 import type {StyleProp, ViewStyle} from 'react-native';
 import type {CameraProps} from 'react-native-vision-camera';
-import type {MRZProperties} from 'vision-camera-mrz-scanner';
+import type {MRZProperties} from 'VisionCameraMrzScanner';
 
 export type MRZCameraProps = {
   /**

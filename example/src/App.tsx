@@ -1,13 +1,14 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
-
-import {Button, StyleSheet, Text, View} from 'react-native';
-import {useCameraDevices} from 'react-native-vision-camera';
-import {MRZProperties, MRZScanner} from 'vision-camera-mrz-scanner';
+import { useEffect, useState } from 'react';
+import 'react-native-reanimated';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { useCameraDevice } from 'react-native-vision-camera';
+import { MRZProperties, MRZScanner } from 'VisionCameraMrzScanner';
 
 export default function App() {
-  const devices = useCameraDevices();
-  const device = devices.back;
+  // const devices = useCameraDevices();
+  // const device = devices
+  const device = useCameraDevice('back');
   const [isActive, setIsActive] = useState(true);
   const [mrzResults, setMrzResults] = useState<MRZProperties>();
 
@@ -23,19 +24,19 @@ export default function App() {
         <MRZScanner
           mrzFinalResults={(mrzFinalResults: MRZProperties) => {
             // do something with the results
-            console.log(
-              'mrzResults: ',
-              JSON.stringify(mrzFinalResults, null, 2),
-            );
+            // console.log(
+            //   'mrzResults: ',
+            //   JSON.stringify(mrzFinalResults, null, 2)
+            // );
             setMrzResults(mrzFinalResults);
             setIsActive(false);
           }}
           enableMRZFeedBack={true}
-          enableBoundingBox={false}
           style={StyleSheet.absoluteFill}
           cameraProps={{
-            orientation: 'portrait',
-            frameProcessorFps: 60,
+            // orientation: 'portrait',
+            // outputOrientation: 'preview',
+            // fps: 60,
             device: device,
             isActive: isActive,
           }}
