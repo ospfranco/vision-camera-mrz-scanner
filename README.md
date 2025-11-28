@@ -7,7 +7,7 @@ VisionCamera Frame Processor Plugin to detect and read MRZ data from passports u
 ### Install
 
 ```sh
-yarn add OpVisionCameraScanner
+yarn add @op-engineering/op-ocr
 ```
 
 ### Configure

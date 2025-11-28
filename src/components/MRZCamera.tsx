@@ -1,6 +1,6 @@
-import React, {
-  FC,
-  PropsWithChildren,
+import {
+  type FC,
+  type PropsWithChildren,
   useCallback,
   useEffect,
   useState,
@@ -13,11 +13,9 @@ import {
   useFrameProcessor,
 } from 'react-native-vision-camera';
 import { useRunOnJS } from 'react-native-worklets-core';
-import {
-  MRZFrame,
-  scanMRZ,
-  sortFormatsByResolution,
-} from 'OpVisionCameraMrzScanner';
+import { scanMRZ } from '../util/wrapper';
+import { type MRZFrame } from '../types/types';
+import { sortFormatsByResolution } from '../util/generalUtil';
 
 type Props = { onData: (data: string[]) => void };
 

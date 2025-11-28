@@ -2,15 +2,18 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "OpVisionCameraMrzScanner": ["./src/index"]
+      "@op-engineering/op-ocr": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "customConditions": ["react-native-strict-api"],
     "esModuleInterop": true,
-    "jsx": "react",
-    "lib": ["esnext"],
-    "module": "esnext",
-    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
@@ -21,7 +24,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext"
-  },
-  "exclude": ["docs", "assets"]
+    "target": "ESNext",
+    "verbatimModuleSyntax": true
+  }
 }

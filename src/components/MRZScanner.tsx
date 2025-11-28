@@ -1,6 +1,7 @@
-import React, { FC, PropsWithChildren } from 'react';
+import { type FC, type PropsWithChildren } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { MRZCamera, MRZScannerProps } from 'OpVisionCameraMrzScanner';
+import MRZCamera from './MRZCamera';
+import { type MRZScannerProps } from '../types/types';
 import type { MRZProperties } from '../types/mrzProperties';
 import { parseMRZ } from '../util/mrzParser';
 

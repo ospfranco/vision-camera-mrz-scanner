@@ -1,6 +1,6 @@
 import type { Frame } from 'react-native-vision-camera';
 import { VisionCameraProxy } from 'react-native-vision-camera';
-import { MRZFrame } from 'src/types/types';
+import { type MRZFrame } from 'src/types/types';
 
 const pluginName = 'scanMRZPlugin';
 

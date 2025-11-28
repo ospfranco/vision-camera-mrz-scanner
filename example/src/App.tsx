@@ -1,8 +1,7 @@
-import * as React from 'react';
 import { useState } from 'react';
 import 'react-native-reanimated';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { MRZProperties, MRZScanner } from 'OpVisionCameraMrzScanner';
+import { type MRZProperties, MRZScanner } from '@op-engineering/op-ocr';
 
 export default function App() {
   const [mrzResults, setMrzResults] = useState<MRZProperties>();
