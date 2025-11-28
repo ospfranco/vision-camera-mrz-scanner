@@ -1,6 +1,6 @@
-import type {StyleProp, ViewStyle} from 'react-native';
-import type {CameraProps} from 'react-native-vision-camera';
-import type {MRZProperties} from 'VisionCameraMrzScanner';
+import type { StyleProp, ViewStyle } from 'react-native';
+import type { CameraProps } from 'react-native-vision-camera';
+import type { MRZProperties } from 'OpVisionCameraMrzScanner';
 
 export type MRZCameraProps = {
   /**
@@ -88,7 +88,7 @@ export type BoundingFrame = {
   boundingCenterX: number;
   boundingCenterY: number;
 };
-export type Point = {x: number; y: number};
+export type Point = { x: number; y: number };
 export interface Size<T = number> {
   width: T;
   height: T;
@@ -141,7 +141,7 @@ export type MRZFrame = {
  * @property {number} width - The width of the image in pixels.
  * @property {number} height - The height of the image in pixels.
  */
-export type Dimensions = {width: number; height: number};
+export type Dimensions = { width: number; height: number };
 
 /**
  * Rect is an object with four properties: top, left, height, and width, all of which are numbers.
