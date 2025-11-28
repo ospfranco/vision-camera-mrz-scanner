@@ -3,96 +3,52 @@ import React, {
   PropsWithChildren,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import {
   Camera,
-  CameraPermissionStatus,
   useCameraDevice,
+  useCameraPermission,
   useFrameProcessor,
 } from 'react-native-vision-camera';
 import { useRunOnJS } from 'react-native-worklets-core';
 import {
-  MRZCameraProps,
   MRZFrame,
   scanMRZ,
   sortFormatsByResolution,
-} from 'VisionCameraMrzScanner';
+} from 'OpVisionCameraMrzScanner';
 
-const MRZCamera: FC<PropsWithChildren<MRZCameraProps>> = ({
-  style,
-  onData,
-  scanSuccess,
-}) => {
-  //*****************************************************************************************
-  //  setting up the state
-  //*****************************************************************************************
-  // Permissions
-  const [hasPermission, setHasPermission] = useState(false);
-  // camera states
-  // const devices = useCameraDevices();
+type Props = { onData: (data: string[]) => void };
+
+const MRZCamera: FC<PropsWithChildren<Props>> = ({ onData }) => {
+  const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
-  // const direction: 'front' | 'back' = cameraDirection ?? 'back';
-  // const device =
-  //   cameraProps?.device ?? devices.find((d) => d.position === direction);
   const { width: screenWidth } = useWindowDimensions();
   const [isActive, setIsActive] = useState(true);
-  const [feedbackText, setFeedbackText] = useState<string>('');
+  const [feedbackText, setFeedbackText] = useState<string>(
+    'Align your Passport'
+  );
 
-  //*****************************************************************************************
-  // Comp Logic
-  //*****************************************************************************************
-
-  // const xRatio = frame.width / WINDOW_WIDTH;
-  // const yRatio = frame.height / WINDOW_HEIGHT;
-  /* A cleanup function that is called when the component is unmounted. */
   useEffect(() => {
     return () => {
       setIsActive(false);
     };
   }, []);
 
-  // which format should we use
-  const formats = useMemo(
-    () => device?.formats.sort(sortFormatsByResolution),
-    [device?.formats]
-  );
-
-  //figure our what happens if it is undefined?
-  const [format, setFormat] = useState(
-    formats && formats.length > 0 ? formats[0] : undefined
-  );
-
-  // useEffect(() => {
-  //   setFormat(formats && formats.length > 0 ? formats[0] : undefined);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [device]);
-
   const handleScan = useCallback((data: MRZFrame) => {
     if (data.result && data.result.blocks && data.result.blocks.length === 0) {
-      setFeedbackText('Align');
-    }
-    /* Scanning the text from the image and then setting the state of the component. */
-
-    if (data.result && data.result.blocks && data.result.blocks.length > 0) {
-      // let updatedOCRElements: BoundingFrame[] = [];
+      setFeedbackText('Align your passport');
+    } else {
       data.result.blocks.forEach((block) => {
-        if (block.frame.width / screenWidth < 0.8) {
-          setFeedbackText('Hold Still');
-        } else {
+        if (block.frame.width / screenWidth >= 0.8) {
           setFeedbackText('Scanning...');
         }
-        // updatedOCRElements.push({ ...block.frame });
       });
 
       const lines = data.result.blocks.map((block) => block.text);
 
       if (lines.length > 0 && isActive && onData) {
-        // runOnJS(() => {
-        //   onData(lines);
-        // });
         onData(lines);
       }
     }
@@ -103,78 +59,57 @@ const MRZCamera: FC<PropsWithChildren<MRZCameraProps>> = ({
   /* Using the useFrameProcessor hook to process the video frames. */
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    if (!scanSuccess) {
-      const data = scanMRZ(frame);
+    const data = scanMRZ(frame);
 
-      if (!data) {
-        return;
-      }
-
-      handleScanFunc(data);
+    if (!data) {
+      return;
     }
+
+    handleScanFunc(data);
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      const status: CameraPermissionStatus =
-        await Camera.requestCameraPermission();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
+  if (!device) {
+    return null;
+  }
 
-  //*****************************************************************************************
-  // stylesheet
-  //*****************************************************************************************
-
-  //*****************************************************************************************
-  // Components
-  //*****************************************************************************************
+  if (!hasPermission) {
+    requestPermission();
+    return null;
+  }
 
   return (
-    <View style={style}>
-      {device && hasPermission ? (
-        <Camera
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive
-          // photo={cameraProps?.photo}
-          // video={cameraProps?.video}
-          // audio={cameraProps?.audio}
-          // zoom={cameraProps?.zoom}
-          // enableZoomGesture={cameraProps?.enableZoomGesture}
-          fps={30}
-          format={format}
-          // fps={cameraProps?.fps ?? 10}
-          // lowLightBoost={cameraProps?.lowLightBoost}
-          videoStabilizationMode={'standard'}
-          // enableDepthData={cameraProps?.enableDepthData}
-          // enablePortraitEffectsMatteDelivery={
-          //   cameraProps?.enablePortraitEffectsMatteDelivery
-          // }
-          // onError={cameraProps?.onError}
-          // onInitialized={cameraProps?.onInitialized}
-          frameProcessor={frameProcessor}
-        />
-      ) : undefined}
+    <View style={styles.container}>
+      <Camera
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive
+        fps={30}
+        format={device.formats.sort(sortFormatsByResolution)[0]}
+        videoStabilizationMode={'standard'}
+        frameProcessor={frameProcessor}
+      />
 
-      {/* {photoSkipButton ? (
-        <View style={[styles.fixToText]}>
-          {photoSkipButtonEnabled ? (
-            photoSkipButton ? (
-              <TouchableOpacity onPress={photoSkipOnPress}>
-                {photoSkipButton}
-              </TouchableOpacity>
-            ) : (
-              <View style={[styles.skipButtonContainer, photoSkipButtonStyle]}>
-                <Button
-                  title={skipButtonText ? skipButtonText : 'Skip'}
-                  onPress={photoSkipOnPress}
-                />
-              </View>
-            )
-          ) : undefined}
+      {/* Passport Overlay Guide */}
+      <View style={styles.overlayContainer}>
+        {/* Top overlay */}
+        <View style={styles.overlay} />
+
+        {/* Middle section with passport frame */}
+        <View style={styles.middleRow}>
+          <View style={styles.overlay} />
+          <View style={styles.passportFrame}>
+            <View style={[styles.corner, styles.topLeft]} />
+            <View style={[styles.corner, styles.topRight]} />
+            <View style={[styles.corner, styles.bottomLeft]} />
+            <View style={[styles.corner, styles.bottomRight]} />
+          </View>
+          <View style={styles.overlay} />
         </View>
-      ) : undefined} */}
+
+        {/* Bottom overlay */}
+        <View style={styles.overlay} />
+      </View>
+
       <View style={styles.feedbackContainer}>
         <Text style={styles.feedbackText}>{feedbackText}</Text>
       </View>
@@ -185,9 +120,60 @@ const MRZCamera: FC<PropsWithChildren<MRZCameraProps>> = ({
 export default MRZCamera;
 
 const styles = StyleSheet.create({
-  fixToText: {
+  container: {
+    flex: 1,
+  },
+  overlayContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    width: '100%',
+  },
+  middleRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    height: 200,
+  },
+  passportFrame: {
+    width: 320,
+    height: 200,
+    borderWidth: 2,
+    borderColor: 'white',
+    borderRadius: 8,
+    position: 'relative',
+  },
+  corner: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderColor: 'white',
+  },
+  topLeft: {
+    top: -2,
+    left: -2,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+  },
+  topRight: {
+    top: -2,
+    right: -2,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+  },
+  bottomLeft: {
+    bottom: -2,
+    left: -2,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+  },
+  bottomRight: {
+    bottom: -2,
+    right: -2,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
   },
   feedbackContainer: {
     position: 'absolute',

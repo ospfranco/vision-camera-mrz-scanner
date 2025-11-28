@@ -2,13 +2,12 @@
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/FrameProcessorPluginRegistry.h>
 
-#import "VisionCameraMrzScanner-Swift.h"
+#import "OpVisionCameraMrzScanner-Swift.h"
 
-
-@interface VisionCameraMrzScanner (FrameProcessorPluginLoader)
+@interface OpVisionCameraMrzScanner (FrameProcessorPluginLoader)
 @end
 
-@implementation VisionCameraMrzScanner (FrameProcessorPluginLoader)
+@implementation OpVisionCameraMrzScanner (FrameProcessorPluginLoader)
 
 + (void)load {
   // vision @4.x.x
@@ -17,8 +16,8 @@
               withInitializer:^FrameProcessorPlugin *_Nonnull(
                   VisionCameraProxyHolder *_Nonnull proxy,
                   NSDictionary *_Nullable options) {
-                return [[VisionCameraMrzScanner alloc] initWithProxy:proxy
-                                                         withOptions:options];
+                return [[OpVisionCameraMrzScanner alloc] initWithProxy:proxy
+                                                           withOptions:options];
               }];
 }
 

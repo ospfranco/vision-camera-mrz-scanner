@@ -1,6 +1,6 @@
-import React, { FC, PropsWithChildren, useEffect, useState } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { MRZCamera, MRZScannerProps } from 'VisionCameraMrzScanner';
+import { MRZCamera, MRZScannerProps } from 'OpVisionCameraMrzScanner';
 import type { MRZProperties } from '../types/mrzProperties';
 import { parseMRZ } from '../util/mrzParser';
 
@@ -9,29 +9,14 @@ const dobList: string[] = [];
 const expiryList: string[] = [];
 
 const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
-  style,
-  skipButtonEnabled,
-  skipButton,
-  onSkipPressed,
-  skipButtonStyle,
-  skipButtonText,
   mrzFinalResults,
   numberOfQAChecks,
-  isActiveCamera,
 }) => {
   //*****************************************************************************************
   //  setting up the state
   //*****************************************************************************************
 
   const numQAChecks = numberOfQAChecks ?? 3;
-  const [scanSuccess, setScanSuccess] = useState(false);
-  const [isActive, setIsActive] = useState(true);
-
-  useEffect(() => {
-    return () => {
-      setIsActive(false);
-    };
-  }, []);
 
   /**
    * If all elements in list match element, add the new element.
@@ -64,8 +49,6 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
       return true;
     }
 
-    console.log(`🟥 ${JSON.stringify(mrzResults)}`);
-
     if (mrzResults.idNumber && idList.length < numQAChecks) {
       mrzQACheck(idList, mrzResults.idNumber);
     }
@@ -85,22 +68,10 @@ const MRZScanner: FC<PropsWithChildren<MRZScannerProps>> = ({
       <MRZCamera
         onData={(lines) => {
           const mrzResults = parseMRZ(lines);
-          if (mrzResults) {
-            if (currentMRZMatchesPreviousMRZs(mrzResults)) {
-              setScanSuccess(true);
-              setIsActive(false);
-              mrzFinalResults(mrzResults);
-            }
+          if (mrzResults && currentMRZMatchesPreviousMRZs(mrzResults)) {
+            mrzFinalResults(mrzResults);
           }
         }}
-        scanSuccess={scanSuccess}
-        skipButtonText={skipButtonText}
-        style={[style ? style : StyleSheet.absoluteFill]}
-        skipButtonEnabled={skipButtonEnabled}
-        skipButtonStyle={skipButtonStyle}
-        skipButton={skipButton}
-        onSkipPressed={onSkipPressed}
-        isActiveCamera={isActiveCamera ?? isActive} // if isActiveCamera is not defined, use the internal state
       />
     </View>
   );

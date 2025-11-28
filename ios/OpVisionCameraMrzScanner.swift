@@ -2,8 +2,8 @@ import MLKitTextRecognition
 import MLKitVision
 import VisionCamera
 
-@objc(VisionCameraMrzScanner)
-public class VisionCameraMrzScanner: FrameProcessorPlugin {
+@objc(OpVisionCameraMrzScanner)
+public class OpVisionCameraMrzScanner: FrameProcessorPlugin {
 
   private static let textRecognizer = TextRecognizer.textRecognizer(
     options: TextRecognizerOptions.init())
@@ -15,10 +15,10 @@ public class VisionCameraMrzScanner: FrameProcessorPlugin {
     for block in blocks {
       blockArray.append([
         "text": block.text,
-        "recognizedLanguages": getRecognizedLanguages(block.recognizedLanguages),
-        "cornerPoints": getCornerPoints(block.cornerPoints),
+        // "recognizedLanguages": getRecognizedLanguages(block.recognizedLanguages),
+        // "cornerPoints": getCornerPoints(block.cornerPoints),
         "frame": getFrame(block.frame),
-        "boundingBox": getBoundingBox(block.frame) as Any,
+        // "boundingBox": getBoundingBox(block.frame) as Any,
         "lines": getLineArray(block.lines),
       ])
     }
@@ -33,10 +33,10 @@ public class VisionCameraMrzScanner: FrameProcessorPlugin {
     for line in lines {
       lineArray.append([
         "text": line.text,
-        "recognizedLanguages": getRecognizedLanguages(line.recognizedLanguages),
-        "cornerPoints": getCornerPoints(line.cornerPoints),
+        // "recognizedLanguages": getRecognizedLanguages(line.recognizedLanguages),
+        // "cornerPoints": getCornerPoints(line.cornerPoints),
         "frame": getFrame(line.frame),
-        "boundingBox": getBoundingBox(line.frame) as Any,
+        // "boundingBox": getBoundingBox(line.frame) as Any,
         "elements": getElementArray(line.elements),
       ])
     }
@@ -51,9 +51,9 @@ public class VisionCameraMrzScanner: FrameProcessorPlugin {
     for element in elements {
       elementArray.append([
         "text": element.text,
-        "cornerPoints": getCornerPoints(element.cornerPoints),
+        // "cornerPoints": getCornerPoints(element.cornerPoints),
         "frame": getFrame(element.frame),
-        "boundingBox": getBoundingBox(element.frame) as Any,
+        // "boundingBox": getBoundingBox(element.frame) as Any,
         "symbols": [],
       ])
     }
@@ -129,7 +129,7 @@ public class VisionCameraMrzScanner: FrameProcessorPlugin {
   {
 
     guard CMSampleBufferGetImageBuffer(frame.buffer) != nil else {
-      print("Failed to get image buffer from sample buffer.")
+      // print("Failed to get image buffer from sample buffer.")
       return nil
     }
 
@@ -150,7 +150,7 @@ public class VisionCameraMrzScanner: FrameProcessorPlugin {
 
     var result: Text
     do {
-      result = try VisionCameraMrzScanner.textRecognizer.results(in: visionImage)
+      result = try OpVisionCameraMrzScanner.textRecognizer.results(in: visionImage)
     } catch let error {
       print("Failed to recognize text with error: \(error.localizedDescription).")
       return nil
@@ -159,7 +159,7 @@ public class VisionCameraMrzScanner: FrameProcessorPlugin {
     return [
       "result": [
         "text": result.text,
-        "blocks": VisionCameraMrzScanner.getBlockArray(result.blocks),
+        "blocks": OpVisionCameraMrzScanner.getBlockArray(result.blocks),
       ]
     ]
   }

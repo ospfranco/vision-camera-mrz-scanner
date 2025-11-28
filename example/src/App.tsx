@@ -1,47 +1,22 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import 'react-native-reanimated';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { useCameraDevice } from 'react-native-vision-camera';
-import { MRZProperties, MRZScanner } from 'VisionCameraMrzScanner';
+import { MRZProperties, MRZScanner } from 'OpVisionCameraMrzScanner';
 
 export default function App() {
-  // const devices = useCameraDevices();
-  // const device = devices
-  const device = useCameraDevice('back');
-  const [isActive, setIsActive] = useState(true);
   const [mrzResults, setMrzResults] = useState<MRZProperties>();
-
-  useEffect(() => {
-    return () => {
-      setIsActive(false);
-    };
-  }, []);
 
   return (
     <View style={styles.container}>
-      {device && !mrzResults ? (
+      {!mrzResults ? (
         <MRZScanner
           mrzFinalResults={(mrzFinalResults: MRZProperties) => {
-            // do something with the results
-            // console.log(
-            //   'mrzResults: ',
-            //   JSON.stringify(mrzFinalResults, null, 2)
-            // );
             setMrzResults(mrzFinalResults);
-            setIsActive(false);
           }}
           enableMRZFeedBack={true}
-          style={StyleSheet.absoluteFill}
-          cameraProps={{
-            // orientation: 'portrait',
-            // outputOrientation: 'preview',
-            // fps: 60,
-            device: device,
-            isActive: isActive,
-          }}
         />
-      ) : undefined}
+      ) : null}
       {mrzResults ? (
         <View style={styles.results}>
           <Text style={styles.title}>MRZ Results</Text>
@@ -84,7 +59,6 @@ export default function App() {
           <Button
             onPress={() => {
               setMrzResults(undefined);
-              setIsActive(true);
             }}
             title="Rescan"
           />
