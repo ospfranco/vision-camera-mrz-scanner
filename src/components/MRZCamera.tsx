@@ -1,6 +1,7 @@
 import React, {
   FC,
   PropsWithChildren,
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -12,16 +13,16 @@ import {
   useCameraDevice,
   useFrameProcessor,
 } from 'react-native-vision-camera';
-import { runOnJS, scheduleOnRN } from 'react-native-worklets';
+import { useRunOnJS } from 'react-native-worklets-core';
 import {
   MRZCameraProps,
+  MRZFrame,
   scanMRZ,
   sortFormatsByResolution,
 } from 'VisionCameraMrzScanner';
 
 const MRZCamera: FC<PropsWithChildren<MRZCameraProps>> = ({
   style,
-  cameraProps,
   onData,
   scanSuccess,
 }) => {
@@ -64,59 +65,53 @@ const MRZCamera: FC<PropsWithChildren<MRZCameraProps>> = ({
     formats && formats.length > 0 ? formats[0] : undefined
   );
 
-  useEffect(() => {
-    setFormat(formats && formats.length > 0 ? formats[0] : undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [device]);
+  // useEffect(() => {
+  //   setFormat(formats && formats.length > 0 ? formats[0] : undefined);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [device]);
 
-  // const handleScanFunc = Worklets.createRunOnJS(handleScan);
+  const handleScan = useCallback((data: MRZFrame) => {
+    if (data.result && data.result.blocks && data.result.blocks.length === 0) {
+      setFeedbackText('Align');
+    }
+    /* Scanning the text from the image and then setting the state of the component. */
+
+    if (data.result && data.result.blocks && data.result.blocks.length > 0) {
+      // let updatedOCRElements: BoundingFrame[] = [];
+      data.result.blocks.forEach((block) => {
+        if (block.frame.width / screenWidth < 0.8) {
+          setFeedbackText('Hold Still');
+        } else {
+          setFeedbackText('Scanning...');
+        }
+        // updatedOCRElements.push({ ...block.frame });
+      });
+
+      const lines = data.result.blocks.map((block) => block.text);
+
+      if (lines.length > 0 && isActive && onData) {
+        // runOnJS(() => {
+        //   onData(lines);
+        // });
+        onData(lines);
+      }
+    }
+  }, []);
+
+  const handleScanFunc = useRunOnJS(handleScan, []);
 
   /* Using the useFrameProcessor hook to process the video frames. */
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    scheduleOnRN(() => {
-      setFeedbackText('WHAT');
-    });
-    // if (!scanSuccess) {
-    //   const data = scanMRZ(frame);
+    if (!scanSuccess) {
+      const data = scanMRZ(frame);
 
-    //   if (!data) {
-    //     return;
-    //   }
+      if (!data) {
+        return;
+      }
 
-    //   if (
-    //     data.result &&
-    //     data.result.blocks &&
-    //     data.result.blocks.length === 0
-    //   ) {
-    //     scheduleOnRN(setFeedbackText, 'align');
-    //   }
-    //   /* Scanning the text from the image and then setting the state of the component. */
-
-    //   if (data.result && data.result.blocks && data.result.blocks.length > 0) {
-    //     // let updatedOCRElements: BoundingFrame[] = [];
-    //     data.result.blocks.forEach((block) => {
-    //       if (block.frame.width / screenWidth < 0.8) {
-    //         scheduleOnRN(setFeedbackText, 'Hold still');
-    //       } else {
-    //         scheduleOnRN(setFeedbackText, 'scanning... ');
-    //       }
-    //       // updatedOCRElements.push({ ...block.frame });
-    //     });
-
-    //     let lines: string[] = [];
-    //     data.result.blocks.forEach((block) => {
-    //       lines.push(block.text);
-    //     });
-
-    //     // if (lines.length > 0 && isActive && onData) {
-    //     //   // runOnJS(() => {
-    //     //   //   onData(lines);
-    //     //   // });
-    //     //   scheduleOnRN(onData, lines);
-    //     // }
-    //   }
-    // }
+      handleScanFunc(data);
+    }
   }, []);
 
   useEffect(() => {
@@ -141,7 +136,6 @@ const MRZCamera: FC<PropsWithChildren<MRZCameraProps>> = ({
         <Camera
           style={StyleSheet.absoluteFill}
           device={device}
-          torch={cameraProps?.torch}
           isActive
           // photo={cameraProps?.photo}
           // video={cameraProps?.video}
@@ -149,10 +143,10 @@ const MRZCamera: FC<PropsWithChildren<MRZCameraProps>> = ({
           // zoom={cameraProps?.zoom}
           // enableZoomGesture={cameraProps?.enableZoomGesture}
           fps={30}
-          format={cameraProps?.format ?? format}
+          format={format}
           // fps={cameraProps?.fps ?? 10}
           // lowLightBoost={cameraProps?.lowLightBoost}
-          // videoStabilizationMode={cameraProps?.videoStabilizationMode}
+          videoStabilizationMode={'standard'}
           // enableDepthData={cameraProps?.enableDepthData}
           // enablePortraitEffectsMatteDelivery={
           //   cameraProps?.enablePortraitEffectsMatteDelivery
@@ -195,25 +189,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  skipButtonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    width: '90%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
   feedbackContainer: {
     position: 'absolute',
-    top: 300,
-    width: 800,
-    height: 40,
-    backgroundColor: 'white',
+    top: 200,
+    width: '90%',
     alignItems: 'center',
   },
   feedbackText: {
+    backgroundColor: 'white',
     color: 'black',
     fontSize: 18,
+    paddingRight: 8,
+    paddingLeft: 8,
     textAlign: 'center',
   },
 });

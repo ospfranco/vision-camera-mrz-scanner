@@ -3,6 +3,9 @@ import { ListItemData } from '../constants/listItemData';
 
 const countryIsoJson = require('../constants/CountryIsoCodes.json');
 
+const firstLineRegex = new RegExp('^.<[A-Z<]+(?:\\*)?$');
+const secondLineRegex = new RegExp('^[A-Z0-9<]+..$');
+
 /**
  * It takes a string, and returns a number
  * @param {string} text - The text to be encoded.
@@ -39,60 +42,34 @@ export const checkSum = (text: string) => {
 
 export const parseMRZ = (initialLines: string[]) => {
   let lines: string[] = [];
-  const firstInitialLastLine = initialLines[initialLines.length - 1];
-  const secondInitialLastLine = initialLines[initialLines.length - 2];
+
+  let secondLine = initialLines[initialLines.length - 1];
+  let firstLine = initialLines[initialLines.length - 2];
   // if lines.length >= 2, extract and parse two-line MRZ
-  if (
-    initialLines &&
-    initialLines.length >= 2 &&
-    firstInitialLastLine &&
-    secondInitialLastLine
-  ) {
-    // return undefined if a double left angle bracket character is found in either last line, or second to last line.
-    if (
-      firstInitialLastLine.indexOf('«') !== -1 ||
-      secondInitialLastLine.indexOf('«') !== -1
-    ) {
-      return undefined;
-    }
+  if (initialLines && initialLines.length >= 2 && secondLine && firstLine) {
     // remove all empty spaces in each line, capitalize all letters, change all '$' to 'S'
     initialLines.forEach((line: string) => {
-      while (line.indexOf(' ') !== -1) {
-        line = line.replace(' ', '');
-      }
+      line = line.replace(/ /g, '');
+      line = line.replace(/«/g, '<<');
       line = line.toUpperCase();
-      while (line.indexOf('$') !== -1) {
-        line = line.replace('$', 'S');
-      }
+      line = line.replace(/\$/g, 'S');
       // MLKIT sometimes add a new line character when it finds a new line instead of separating the lines into different elements.
-      while (line.indexOf('\n') !== -1) {
-        lines.push(line.substring(0, line.indexOf('\n')));
-        line = line.substring(line.indexOf('\n') + 1);
-      }
-      lines.push(line);
+      const splitLines = line.split('\n');
+      splitLines.forEach((l) => lines.push(l));
     });
 
-    // parse 2 line MRZ if the current line, and the previous line  both have 43, 44, or 45 characters
-    for (let i = 1; i < lines.length; i++) {
-      const currentLine = lines[i];
-      const lastLine = lines[i - 1];
-      if (currentLine && lastLine) {
-        if (
-          (currentLine.length > 42 &&
-            currentLine.length < 46 &&
-            lastLine.length > 42 &&
-            lastLine.length < 46) ||
-          (currentLine.length > 35 &&
-            currentLine.length < 37 &&
-            lastLine.length > 35 &&
-            lastLine.length < 37)
-        ) {
-          return parse2LineMRZ(lastLine, currentLine);
-          // return parse([lastLine, currentLine]).fields;
-        }
+    for (let i = lines.length - 1; i > 0; i--) {
+      const secondLine = lines[i]!;
+      let firstLine = lines[i - 1]!;
+      // The first line should contain only alphanumeric? TODO Check passport specification
+      firstLine = firstLine.replace(/0/g, 'O');
+
+      if (firstLineRegex.test(firstLine) && secondLineRegex.test(secondLine)) {
+        return parse2LineMRZ(firstLine, secondLine);
       }
     }
   } // end (lines.length >= 2)
+
   if (lines.length >= 3) {
     // At this point, empty spaces will already be removed and all letters will be capitalized.
     // return undefined if a double left angle bracket character is found in third to last line.
